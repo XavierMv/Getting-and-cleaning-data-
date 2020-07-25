@@ -1,0 +1,165 @@
+---
+title: "Code book"
+author: "Xavier Magaña Vera"
+date: "7/25/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+library(kableExtra)
+###################################TEST######################################
+X_test <- read.table("C:/Users/xavie/OneDrive/Escritorio/data science coursera/UCI HAR Dataset/test/X_test.txt", quote="\"", comment.char="")
+y_test <- read.table("C:/Users/xavie/OneDrive/Escritorio/data science coursera/UCI HAR Dataset/test/y_test.txt", quote="\"", comment.char="")
+subject_test <- read.table("C:/Users/xavie/OneDrive/Escritorio/data science coursera/UCI HAR Dataset/test/subject_test.txt", quote="\"", comment.char="")
+###################################TRAIN######################################
+X_train <- read.table("C:/Users/xavie/OneDrive/Escritorio/data science coursera/UCI HAR Dataset/train/X_train.txt", quote="\"", comment.char="")
+y_train <- read.table("C:/Users/xavie/OneDrive/Escritorio/data science coursera/UCI HAR Dataset/train/y_train.txt", quote="\"", comment.char="")
+subject_train <- read.table("C:/Users/xavie/OneDrive/Escritorio/data science coursera/UCI HAR Dataset/train/subject_train.txt", quote="\"", comment.char="")
+#################################MAIN LABELS###########################################
+features <- read.table("C:/Users/xavie/OneDrive/Escritorio/data science coursera/UCI HAR Dataset/features.txt")
+activitylabels <-read.table("C:/Users/xavie/OneDrive/Escritorio/data science coursera/UCI HAR Dataset/activity_labels.txt")
+
+## Assign names
+colnames(X_test) <- features[,2]
+colnames(X_train) <- features[,2]
+
+## Assign labels
+colnames(y_test) <- "activity"
+colnames(y_train) <- "activity"
+colnames(subject_test) <- "subjectnum"
+colnames(subject_train) <- "subjectnum"
+colnames(activitylabels) <- c("subjectnum", "activity")
+
+
+### Merge data
+TRAIN <- cbind(y_train,subject_train, X_train)
+TEST <- cbind(y_test,subject_test, X_test)
+BDF <- rbind(TRAIN, TEST)
+
+
+## Getting mean and SD
+cnames <- colnames(BDF)
+mean_sd <- (grepl("subjectnum", cnames) | grepl("activity", cnames) | grepl("mean..", cnames) | grepl("std..", cnames))
+BDFm_sd <- BDF[ , mean_sd == TRUE]
+
+## Activity names (NAMES ARE IN THE LAST COLUMN)
+DF <- merge(BDFm_sd, activitylabels, by='subjectnum', all.x = TRUE)
+
+## Creating new tidy data 
+DFfinal <- aggregate( .~subjectnum + activity.y, data =  DF, mean)
+DFfinal <- DFfinal[order(DFfinal$activity.y, DFfinal$subjectnum),]
+
+## Rename
+newnames <- names(DFfinal)
+newnames <- sub("^t", "Time", newnames) 
+newnames <- sub("^f", "Frequency", newnames)
+newnames <- sub("Acc+", "Acceleration", newnames) 
+newnames <- sub("Gyro+", "Gyroscope", newnames) 
+newnames <- sub("std+", "StandardDeviation", newnames)
+colnames(DFfinal) <- newnames
+DFfinal <- DFfinal[-c(3)]
+```
+
+### Variables 
+
+The final dataset was created with the following variables, I assigned each and every one of them the activity name and the subject that corresponds each activity and substituted some characters for words as shown below:
+
+- t <- Time
+- f <- Frequency
+- Acc <- Acceleration
+- Gyro <- Gyroscope
+- std <- StandardDeviation
+
+ [1] "subjectnum"                                              
+ [2] "activity.y"                                              
+ [3] "TimeBodyAcceleration-mean()-X"                           
+ [4] "TimeBodyAcceleration-mean()-Y"                           
+ [5] "TimeBodyAcceleration-mean()-Z"                           
+ [6] "TimeBodyAcceleration-StandardDeviation()-X"              
+ [7] "TimeBodyAcceleration-StandardDeviation()-Y"              
+ [8] "TimeBodyAcceleration-StandardDeviation()-Z"              
+ [9] "TimeGravityAcceleration-mean()-X"                        
+[10] "TimeGravityAcceleration-mean()-Y"                        
+[11] "TimeGravityAcceleration-mean()-Z"                        
+[12] "TimeGravityAcceleration-StandardDeviation()-X"           
+[13] "TimeGravityAcceleration-StandardDeviation()-Y"           
+[14] "TimeGravityAcceleration-StandardDeviation()-Z"           
+[15] "TimeBodyAccelerationJerk-mean()-X"                       
+[16] "TimeBodyAccelerationJerk-mean()-Y"                       
+[17] "TimeBodyAccelerationJerk-mean()-Z"                       
+[18] "TimeBodyAccelerationJerk-StandardDeviation()-X"          
+[19] "TimeBodyAccelerationJerk-StandardDeviation()-Y"          
+[20] "TimeBodyAccelerationJerk-StandardDeviation()-Z"          
+[21] "TimeBodyGyroscope-mean()-X"                              
+[22] "TimeBodyGyroscope-mean()-Y"                              
+[23] "TimeBodyGyroscope-mean()-Z"                              
+[24] "TimeBodyGyroscope-StandardDeviation()-X"                 
+[25] "TimeBodyGyroscope-StandardDeviation()-Y"                 
+[26] "TimeBodyGyroscope-StandardDeviation()-Z"                 
+[27] "TimeBodyGyroscopeJerk-mean()-X"                          
+[28] "TimeBodyGyroscopeJerk-mean()-Y"                          
+[29] "TimeBodyGyroscopeJerk-mean()-Z"                          
+[30] "TimeBodyGyroscopeJerk-StandardDeviation()-X"             
+[31] "TimeBodyGyroscopeJerk-StandardDeviation()-Y"             
+[32] "TimeBodyGyroscopeJerk-StandardDeviation()-Z"             
+[33] "TimeBodyAccelerationMag-mean()"                          
+[34] "TimeBodyAccelerationMag-StandardDeviation()"             
+[35] "TimeGravityAccelerationMag-mean()"                       
+[36] "TimeGravityAccelerationMag-StandardDeviation()"          
+[37] "TimeBodyAccelerationJerkMag-mean()"                      
+[38] "TimeBodyAccelerationJerkMag-StandardDeviation()"         
+[39] "TimeBodyGyroscopeMag-mean()"                             
+[40] "TimeBodyGyroscopeMag-StandardDeviation()"                
+[41] "TimeBodyGyroscopeJerkMag-mean()"                         
+[42] "TimeBodyGyroscopeJerkMag-StandardDeviation()"            
+[43] "FrequencyBodyAcceleration-mean()-X"                      
+[44] "FrequencyBodyAcceleration-mean()-Y"                      
+[45] "FrequencyBodyAcceleration-mean()-Z"                      
+[46] "FrequencyBodyAcceleration-StandardDeviation()-X"         
+[47] "FrequencyBodyAcceleration-StandardDeviation()-Y"         
+[48] "FrequencyBodyAcceleration-StandardDeviation()-Z"         
+[49] "FrequencyBodyAcceleration-meanFreq()-X"                  
+[50] "FrequencyBodyAcceleration-meanFreq()-Y"                  
+[51] "FrequencyBodyAcceleration-meanFreq()-Z"                  
+[52] "FrequencyBodyAccelerationJerk-mean()-X"                  
+[53] "FrequencyBodyAccelerationJerk-mean()-Y"                  
+[54] "FrequencyBodyAccelerationJerk-mean()-Z"                  
+[55] "FrequencyBodyAccelerationJerk-StandardDeviation()-X"     
+[56] "FrequencyBodyAccelerationJerk-StandardDeviation()-Y"     
+[57] "FrequencyBodyAccelerationJerk-StandardDeviation()-Z"     
+[58] "FrequencyBodyAccelerationJerk-meanFreq()-X"              
+[59] "FrequencyBodyAccelerationJerk-meanFreq()-Y"              
+[60] "FrequencyBodyAccelerationJerk-meanFreq()-Z"              
+[61] "FrequencyBodyGyroscope-mean()-X"                         
+[62] "FrequencyBodyGyroscope-mean()-Y"                         
+[63] "FrequencyBodyGyroscope-mean()-Z"                         
+[64] "FrequencyBodyGyroscope-StandardDeviation()-X"            
+[65] "FrequencyBodyGyroscope-StandardDeviation()-Y"            
+[66] "FrequencyBodyGyroscope-StandardDeviation()-Z"            
+[67] "FrequencyBodyGyroscope-meanFreq()-X"                     
+[68] "FrequencyBodyGyroscope-meanFreq()-Y"                     
+[69] "FrequencyBodyGyroscope-meanFreq()-Z"                     
+[70] "FrequencyBodyAccelerationMag-mean()"                     
+[71] "FrequencyBodyAccelerationMag-StandardDeviation()"        
+[72] "FrequencyBodyAccelerationMag-meanFreq()"                 
+[73] "FrequencyBodyBodyAccelerationJerkMag-mean()"             
+[74] "FrequencyBodyBodyAccelerationJerkMag-StandardDeviation()"
+[75] "FrequencyBodyBodyAccelerationJerkMag-meanFreq()"         
+[76] "FrequencyBodyBodyGyroscopeMag-mean()"                    
+[77] "FrequencyBodyBodyGyroscopeMag-StandardDeviation()"       
+[78] "FrequencyBodyBodyGyroscopeMag-meanFreq()"                
+[79] "FrequencyBodyBodyGyroscopeJerkMag-mean()"                
+[80] "FrequencyBodyBodyGyroscopeJerkMag-StandardDeviation()"   
+[81] "FrequencyBodyBodyGyroscopeJerkMag-meanFreq()"
+
+### Final dataset 
+
+The following dataset already has the changed names and corrections of the whole project, it contains 6 observations and 81 variables.
+
+```{r}
+kable(DFfinal) %>%
+  kable_styling() %>%
+  scroll_box(width = "1000px", height = "300px")
+```
