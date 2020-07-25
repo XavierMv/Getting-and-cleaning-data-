@@ -1,0 +1,37 @@
+---
+title: "ReadMe"
+author: "Xavier Magaña Vera"
+date: "7/25/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Assignment
+
+
+
+### Main Steps
+
+First of all I loaded the data with the read.table() command and saw that there was a the same number of variables in the x test and train dataset as in features, so I took a look and assign the rows of features to the x datasets, y dataset only had values that went from 1 to 6, that corresponded to the 6 activities that we had on our txt files, so I named the y datasets as activity and the ones from subject I called them subjectnum, after that I also changed the activity labels names to subjectnum and activity, in that way I already had the data labeled and identified.
+The next step was to put all the train datasets in one with cbind and do the same for the tests, once we had that we merged the train dataset with the test dataset and made a big data frame with rbind.
+Next I needed to separate the columns that gave me information about the mean and the standard deviation, so I used the grepl command to look for the matches of the strings activity, subjectnum, mean and std and finally created another data frame that had those 81 variables out of 563 that were in the original one, after that I merged the data frame that had just the variables of the mean and standard deviation with the data frame of activity labels and aggregate the names of the activities, after this I just keep the data get the mean by activity and save it all in one data frame that contains mean of each group and change some names in order to have the labels more understandable for future usage.
+After the data is stored in a dataframe I just save it with the command write.table() and get a txt file named New_dataset.txt
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
